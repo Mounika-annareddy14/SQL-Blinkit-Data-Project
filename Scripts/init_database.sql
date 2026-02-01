@@ -25,10 +25,10 @@ END;
 GO
 
 -- Create the 'DataWarehouse' database
-CREATE DATABASE DataWarehouse;
+CREATE DATABASE Blinkit_Dwh;
 GO
 
-USE DataWarehouse;
+USE Blinkit_Dwh;
 GO
 
 -- Create Schemas
