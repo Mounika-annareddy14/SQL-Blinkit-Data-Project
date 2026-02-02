@@ -4,6 +4,7 @@
 <h2>📌 Project Overview</h2>
 <p>
 This project implements a <strong>Data Warehouse pipeline in MS SQL Server</strong> using Blinkit business data stored in CSV files.
+Using <strong>Mandelion Architecture</strong>
 The current implementation covers the <strong>Bronze Layer</strong>, where raw data from source CSV files is ingested into SQL Server using:
 </p>
 <ul>
