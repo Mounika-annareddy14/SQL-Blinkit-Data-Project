@@ -30,9 +30,9 @@ CREATE TABLE silver.customers_info (
 			customer_name VARCHAR(50),
 			email VARCHAR(100),
 			phone VARCHAR(20),
-			address NVARCHAR(MAX),
+			address NVARCHAR(255),
 			area VARCHAR(100),
-			pincode INT,
+			pincode VARCHAR(10),
 			registration_date DATE,
 			customer_segment VARCHAR(50),
 			total_orders INT,
@@ -44,9 +44,9 @@ IF OBJECT_ID('silver.orders_info' ,'U') IS NOT NULL
 			DROP TABLE silver.orders_info;
 GO
 
-CREATE TABLE silver.oders_info(
-			order_id INT,
-			customer_id INT,
+CREATE TABLE silver.orders_info(
+			order_id BIGINT,
+			customer_id BIGINT,
 			order_date DATETIME,
 			promised_delivery_time DATETIME,
 			actual_delivery_time DATETIME,
@@ -62,7 +62,7 @@ IF OBJECT_ID('silver.order_items_info' ,'U') IS NOT NULL
 			DROP TABLE silver.order_items_info;
 GO
 CREATE TABLE silver.order_items_info(
-			order_id INT,
+			order_id BIGINT,
 			product_id INT,
 			quantity INT,
 			unit_price DECIMAL(10,2),
@@ -74,9 +74,9 @@ IF OBJECT_ID('silver.products_info' ,'U') IS NOT NULL
 GO
 CREATE TABLE silver.products_info(
 			product_id INT,
-			product_name VARCHAR(50),
+			product_name VARCHAR(150),
 			category VARCHAR(50),
-			brand NVARCHAR(MAX),
+			brand NVARCHAR(255),
 			price DECIMAL(10,2),
 			mrp DECIMAL(10,2),
 			margin_percentage INT,
@@ -91,7 +91,7 @@ IF OBJECT_ID('silver.inventory_info' ,'U') IS NOT NULL
 GO
 CREATE TABLE silver.inventory_info(
 			product_id INT,
-			date DATE,
+			inventory_date DATE,
 			stock_received INT,
 			damaged_stock INT,
 			dwh_create_date DATETIME2 DEFAULT GETDATE()
@@ -108,7 +108,7 @@ CREATE TABLE silver.delivery_performance_info(
 			delivery_time_minutes DECIMAL(10,2),
 			distance_km DECIMAL(10,2),
 			delivery_status VARCHAR(50),
-			reasons_if_delayed VARCHAR(50),
+			reasons_if_delayed VARCHAR(255),
 			dwh_create_date DATETIME2 DEFAULT GETDATE()
 			);
 
@@ -118,7 +118,7 @@ GO
 CREATE TABLE silver.marketing_performance_info(
 			campaign_id INT,
 			campaign_name VARCHAR(100),
-			date DATE,
+			campaign_date DATE,
 			target_audience VARCHAR(50),
 			channel VARCHAR(50),
 			impressions INT,
@@ -163,4 +163,3 @@ CREATE TABLE silver.rating_icons_info(
 			Star VARCHAR(50),
 			dwh_create_date DATETIME2 DEFAULT GETDATE()
 		);
-
