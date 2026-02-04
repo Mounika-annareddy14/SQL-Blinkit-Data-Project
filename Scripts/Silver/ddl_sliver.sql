@@ -101,11 +101,11 @@ IF OBJECT_ID('silver.delivery_performance_info' ,'U') IS NOT NULL
 	DROP TABLE silver.delivery_performance_info;
 GO
 CREATE TABLE silver.delivery_performance_info(
-			order_id INT,
+			order_id BIGINT,
 			delivery_partner_id INT,
 			promised_time DATETIME,
 			actual_time DATETIME,
-			delivery_time_minutes DECIMAL(10,2),
+			delivery_time_minutes INT,
 			distance_km DECIMAL(10,2),
 			delivery_status VARCHAR(50),
 			reasons_if_delayed VARCHAR(255),
@@ -135,7 +135,7 @@ IF OBJECT_ID('silver.customer_feedback_info' ,'U') IS NOT NULL
 GO
 CREATE TABLE silver.customer_feedback_info(
 			feedback_id INT,
-			order_id INT,
+			order_id BIGINT,
 			customer_id INT,
 			rating INT,
 			feedback_text NVARCHAR(MAX),
@@ -150,8 +150,7 @@ IF OBJECT_ID('silver.category_icons_info' ,'U') IS NOT NULL
 GO
 CREATE TABLE silver.category_icons_info(
 			category VARCHAR(50),
-			Image_link NVARCHAR(max),
-			dwh_create_date DATETIME2 DEFAULT GETDATE()
+			Image_link NVARCHAR(max)
 		);
 
 IF OBJECT_ID('silver.rating_icons_info' ,'U') IS NOT NULL
@@ -160,6 +159,5 @@ GO
 CREATE TABLE silver.rating_icons_info(
 			Rating INT,
 			Emoji NVARCHAR(50),
-			Star VARCHAR(50),
-			dwh_create_date DATETIME2 DEFAULT GETDATE()
+			Star VARCHAR(50)
 		);
