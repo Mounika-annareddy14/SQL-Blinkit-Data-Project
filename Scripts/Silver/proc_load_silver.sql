@@ -253,6 +253,27 @@ BEGIN
 	END CATCH
 END
 
+UPDATE silver.delivery_performance_info
+SET delivery_time_minutes =
+    CASE
+        WHEN actual_time <= promised_time THEN 0
+        ELSE DATEDIFF(MINUTE, promised_time, actual_time)
+    END;
+
+
+
+UPDATE silver.delivery_performance_info
+SET delivery_status =
+    CASE
+        WHEN actual_time <= promised_time THEN 'On Time'
+        WHEN DATEDIFF(MINUTE, promised_time, actual_time) <= 10 THEN 'Slightly Delayed'
+        ELSE 'Significantly Delayed'
+    END;
+
+UPDATE silver.delivery_performance_info
+SET reasons_if_delayed = 'Not Applicable'
+WHERE delivery_status = 'On Time';
+
 --select * from bronze.rating_icons_info;
 
 --select * from silver.customers_info;
