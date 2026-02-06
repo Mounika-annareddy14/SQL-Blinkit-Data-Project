@@ -16,7 +16,6 @@ Usage:
 
 
 -- Creating Views
--- CUSTOMERS:
 IF OBJECT_ID('gold.dim_customers','V') IS NOT NULL
     DROP VIEW gold.dim_customers;
 GO
@@ -36,7 +35,6 @@ IF OBJECT_ID('gold.dim_products','V') IS NOT NULL
     DROP VIEW gold.dim_products;
 GO
 
---PRODUCTS:
 CREATE VIEW gold.dim_products AS
 SELECT
     ROW_NUMBER() OVER (ORDER BY product_id) AS product_key,
@@ -55,7 +53,7 @@ SELECT
 FROM silver.products_info;
 GO
 
---ORDERS:
+
 IF OBJECT_ID('gold.fact_orders' ,'V') IS NOT NULL
 		DROP VIEW gold.fact_orders;
 GO
@@ -108,7 +106,7 @@ LEFT JOIN silver.customer_feedback_info fb
 
 
 GO
---INVENTORY:
+
 IF OBJECT_ID('gold.fact_inventory','V') IS NOT NULL
 		DROP VIEW gold.fact_inventory;
 GO
@@ -130,8 +128,58 @@ LEFT JOIN gold.dim_products p
 ON i.product_id = p.product_id
 GO
 
+IF OBJECT_ID('gold.fact_marketing_performance','V') IS NOT NULL
+    DROP VIEW gold.fact_marketing_performance;
+GO
+
+CREATE VIEW gold.fact_marketing_performance AS
+SELECT
+    ROW_NUMBER() OVER (ORDER BY m.campaign_date) AS marketing_key,
+
+    m.campaign_date,
+    m.campaign_name,
+    m.channel,
+
+    m.impressions,
+    m.clicks,
+    m.spend,
+    m.conversions,
+
+    -- Orders happened on same day
+    COUNT(DISTINCT o.order_id)        AS total_orders,
+    SUM(oi.quantity * oi.unit_price) AS total_sales_amount,
+
+    -- KPI calculations
+    CASE 
+        WHEN m.clicks = 0 THEN 0 
+        ELSE CAST(m.conversions AS FLOAT) / m.clicks 
+    END AS conversion_rate,
+
+    CASE 
+        WHEN COUNT(DISTINCT o.order_id) = 0 THEN 0
+        ELSE m.spend / COUNT(DISTINCT o.order_id)
+    END AS cost_per_order
+
+FROM silver.marketing_performance_info m
+
+LEFT JOIN silver.orders_info o
+    ON CAST(o.order_date AS DATE) = m.campaign_date
+
+LEFT JOIN silver.order_items_info oi
+    ON o.order_id = oi.order_id
+
+GROUP BY
+    m.campaign_date,
+    m.campaign_name,
+    m.channel,
+    m.impressions,
+    m.clicks,
+    m.spend,
+    m.conversions;
+GO
 
 select top 5* from gold.dim_customers;
 select top 5* from gold.dim_products;
 select top 5* from gold.fact_orders;
-select top 5* from gold.fact_inventory
+select top 5* from gold.fact_inventory;
+select top 5* from gold.fact_marketing_performance
