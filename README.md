@@ -1,114 +1,161 @@
+# 🏬 Blinkit Data Warehouse Project (SQL Server)
 
-<h1>🛒 Blinkit Data Warehouse Project (MS SQL Server) – Bronze Layer</h1>
+## 📌 Project Overview
 
-<h2>📌 Project Overview</h2>
-<p>
-This project implements a <strong>Data Warehouse pipeline in MS SQL Server</strong> using Blinkit business data stored in CSV files.
-Using <strong>Mandelion Architecture</strong>
-The current implementation covers the <strong>Bronze Layer</strong>, where raw data from source CSV files is ingested into SQL Server using:
-</p>
-<ul>
-    <li>Batch Processing</li>
-    <li>Full Load Strategy</li>
-    <li>TRUNCATE and INSERT approach</li>
-    <li>BULK INSERT for high-performance loading</li>
-</ul>
+This project implements a **Data Warehouse solution for Blinkit retail data** using **SQL Server** following a **Medallion Architecture**:
 
-<h2>🧱 Architecture (Current Stage)</h2>
-<pre>CSV Files  →  Bronze Layer (Raw Tables in SQL Server)</pre>
+**Bronze → Silver → Gold**
 
-<h2>🛠 Tools & Technologies Used</h2>
-<ul>
-    <li>Microsoft SQL Server</li>
-    <li>SSMS</li>
-    <li>BULK INSERT</li>
-    <li>Stored Procedures</li>
-    <li>Schemas</li>
-    <li>Batch Processing</li>
-</ul>
+The objective is to transform raw CSV data into a **business-ready analytical model (Star / Galaxy Schema)** for reporting and dashboarding.
 
-<h2>📂 Source Files Loaded</h2>
-<ul>
-    <li>blinkit_customers.csv</li>
-    <li>blinkit_orders.csv</li>
-    <li>blinkit_order_items.csv</li>
-    <li>blinkit_products.csv</li>
-    <li>blinkit_inventoryNew.csv</li>
-    <li>blinkit_delivery_performance.csv</li>
-    <li>blinkit_marketing_performance.csv</li>
-    <li>blinkit_customer_feedback.csv</li>
-    <li>Category_Icons.csv</li>
-    <li>Rating_Icon.csv</li>
-</ul>
+---
 
-<h2>🥉 Bronze Layer Implementation</h2>
+## 🧱 Architecture Used
 
-<h3>Schema</h3>
-<pre><code>CREATE SCHEMA bronze;</code></pre>
+| Layer  | Purpose                                      | Method                                  |
+|-------|-----------------------------------------------|------------------------------------------|
+| Bronze | Raw data ingestion from CSV files           | Full Load, Truncate & Insert, Batch Load |
+| Silver | Data cleaning, transformation, validation   | ETL using Stored Procedures              |
+| Gold   | Analytical model for reporting              | Views (Star Schema)                     |
 
-<h3>Tables</h3>
-<p>All tables are created under the <code>bronze</code> schema with VARCHAR columns to avoid data type issues during raw ingestion.</p>
+---
 
-<h2>⚙️ Loading Strategy Used</h2>
-<ol>
-    <li>Table is <strong>TRUNCATED</strong></li>
-    <li>Data is <strong>reloaded completely</strong> from CSV</li>
-    <li>Performed using <strong>BULK INSERT</strong></li>
-    <li>Executed via a single stored procedure (Batch Processing)</li>
-</ol>
+## 📂 Datasets Used
 
-<h2>🧪 BULK INSERT Configuration</h2>
-<ul>
-    <li><code>FIRSTROW = 2</code> – Skip headers</li>
-    <li><code>FIELDTERMINATOR = ','</code></li>
-    <li><code>FIELDQUOTE = '"'</code></li>
-    <li><code>CODEPAGE = '65001'</code> – UTF-8 support</li>
-    <li><code>TABLOCK</code> – Faster loading</li>
-</ul>
+- Customers
+- Orders
+- Order Items
+- Products
+- Inventory
+- Delivery Performance
+- Customer Feedback
+- Category Icons (UI lookup)
+- Rating Icons (UI lookup)
 
-<h2>▶️ Execution</h2>
-<pre><code>EXEC bronze.load_bronze;</code></pre>
+---
 
-<h2>🎯 Purpose of Bronze Layer</h2>
-<table>
-    <tr>
-        <th>Aspect</th>
-        <th>Description</th>
-    </tr>
-    <tr>
-        <td>Raw Ingestion</td>
-        <td>Exact copy of source data</td>
-    </tr>
-    <tr>
-        <td>Full Load</td>
-        <td>Reload entire dataset every run</td>
-    </tr>
-    <tr>
-        <td>Truncate & Insert</td>
-        <td>Ensures fresh data each batch</td>
-    </tr>
-    <tr>
-        <td>Batch Processing</td>
-        <td>Single procedure handles all loads</td>
-    </tr>
-    <tr>
-        <td>Foundation</td>
-        <td>Base layer for Silver transformations</td>
-    </tr>
-</table>
+## 🥉 Bronze Layer – Raw Ingestion
 
-<h2>✅ Current Status</h2>
-<ul>
-    <li>Bronze Layer Completed Successfully</li>
-    <li>Silver Layer – Pending</li>
-    <li>Gold Layer – Pending</li>
-</ul>
+- Data loaded from CSV using **BULK INSERT**
+- No transformations applied
+- Tables created under `bronze` schema
+- Approach: **Batch Processing + Full Load**
 
-<h2>👩‍💻 Author</h2>
-<p><strong>Mounika Reddy</strong><br>
+---
 
-</body>
-</html>
+## 🥈 Silver Layer – Data Cleaning & Transformation
 
+ETL performed using a **stored procedure**:
 
+- Data type conversions (VARCHAR → INT / DATE / DATETIME)
+- Null handling and standardization
+- Date format corrections
+- Cleaning invalid characters
+- Business rule corrections (delivery delay, negative time, delay reasons)
 
+Tables created under `silver` schema.
+
+---
+
+## 🥇 Gold Layer – Analytical Star / Galaxy Schema
+
+### ✅ Dimension Views
+
+#### `gold.dim_customers`
+
+- `customer_key` (Surrogate Key)
+- Customer name, area, segment
+- Registration Month-Year
+
+#### `gold.dim_products`
+
+- `product_key` (Surrogate Key)
+- Product details, category, brand
+- Pricing and stock limits
+
+---
+
+### ✅ Fact Views
+
+#### `gold.fact_orders`
+
+Central analytical fact combining:
+
+- Orders
+- Order items
+- Customers
+- Products
+- Delivery status & delay reason
+- Feedback rating & sentiment
+
+**Used for:**
+
+- Sales analysis
+- Customer behavior
+- Delivery performance
+- Feedback analysis
+
+---
+
+#### `gold.fact_inventory`
+
+- Inventory tracking per product per date
+- Usable stock calculation
+
+**Used for:**
+
+- Stock monitoring
+- Damage analysis
+- Replenishment planning
+
+---
+
+## 🎨 Reporting Lookup Tables (For BI Tools)
+
+| Table           | Purpose                                  |
+|-----------------|-------------------------------------------|
+| category_icons  | Display category images in dashboards     |
+| rating_icons    | Display star/emoji ratings                |
+
+> These tables are used only in **Power BI / Tableau**, not inside fact views.
+
+---
+
+## 🧠 Data Modeling Concept
+
+This project follows:
+
+- **Fact Constellation (Galaxy Schema)**
+- `fact_orders` star schema
+- `fact_inventory` star schema
+- Shared dimensions: `dim_customers`, `dim_products`
+
+---
+
+## 🛠️ Technologies Used
+
+- SQL Server
+- T-SQL (DDL, DML, Views, Stored Procedures)
+- BULK INSERT
+- Data Warehouse Modeling
+- Star & Galaxy Schema
+- Ready for Power BI / Tableau
+
+---
+
+## 📊 Business Use Cases Supported
+
+- Sales & revenue analysis
+- Customer segmentation
+- Product performance
+- Delivery delay analysis
+- Feedback & sentiment tracking
+- Inventory and stock monitoring
+
+---
+
+## 🚀 Outcome
+
+**Raw CSV files → Cleaned Warehouse → Analytical Model → Ready for Dashboards**
+
+This project demonstrates **real-world Data Engineering, ETL, and Data Modeling skills**.
